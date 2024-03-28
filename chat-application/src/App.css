@@ -1,0 +1,27 @@
+.main-body {
+    padding: 2rem;
+    font-size: 1.5rem;
+}
+
+.chat-area {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+
+}
+.chats {
+    min-height: 300px;
+    width: 100%;
+
+    border: 1px solid grey;
+
+}
+button {
+    margin: 0.5rem;
+}
+
+h3 {
+    margin: 0;
+    padding: 0;
+}

@@ -5,7 +5,7 @@ import './App.css'
 const socket = io('http://localhost:3000')
 
 export default function App() {
-  const [header, setHeader] = useState('')
+  const [userName, setUserName] = useState('')
 
   const [message, setMessage] = useState('')
   const [room, setRoom] = useState('')
@@ -19,31 +19,30 @@ export default function App() {
       console.log('Connected to the server')
       console.log(socket.id)
 
-      setHeader('You connected')
+      const person = prompt('Enter your name: ')
+      setUserName(person)
+      socket.emit('send-user-connected', person)
     })
 
-    socket.on('broadcast-message', (message, id) => {
-      if (id != socket.id){
-        console.log('Receiving id: ', id)
-        console.log('User id: ', socket.id)
-
+    socket.on('broadcast-message', (message, user) => {
         //DO NOT DO THIS: Since both .on() and setState functions are async in nature, the temp variable will not exist when setMessages takes effect
         //const temp = messages.slice()
         //temp.push('Another User: ' + message)
         //setMessages(temp)
 
         // Instead, do this.
-        setMessages((prevMessages) => [...prevMessages, 'Another User: ' + message]);
-      }else{
-        console.log('I AM EQUAL')
-      }
+        setMessages((prevMessages) => [...prevMessages, user + ': ' + message]);
+    })
+
+    socket.on('broadcast-user-connected', (username) => {
+      setMessages((prevMessages) => [...prevMessages, username + ' connected.']);
     })
 
   }, [])
 
 
   function handleMessageSend(){
-    socket.emit('send-message', message)
+    socket.emit('send-message', message, userName)
     
     const temp = messages.slice()
     temp.push('You: ' + message)
@@ -57,7 +56,7 @@ export default function App() {
     <div className="main-body">
       <div className='chat-area'>
         <div className='chats'>
-          <h3>{header}</h3>
+          <h3>{userName} connected.</h3>
 
           {
             messages.map(m => {

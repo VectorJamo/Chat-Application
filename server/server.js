@@ -8,12 +8,14 @@ const io = new socket.Server(3000, {
     }
 })
 
-io.on('connection', (socket) => {
-    console.log('Connected User: ', socket.id);
-    
-    socket.on('send-message', (message) => {
-        socket.broadcast.emit('broadcast-message', message, socket.id)
+io.on('connection', (socket) => {    
+    socket.on('send-message', (message, username) => {
+        socket.broadcast.emit('broadcast-message', message, username)
         console.log('message broadcasted by user: ', socket.id)
+    })
+
+    socket.on('send-user-connected', (username) => {
+        socket.broadcast.emit('broadcast-user-connected', username)
     })
 })
 

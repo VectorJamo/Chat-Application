@@ -9,6 +9,7 @@ export default function App() {
 
   const [message, setMessage] = useState('')
   const [room, setRoom] = useState('')
+  const [currentRoom, setCurrentRoom] = useState('')
 
   const [messages, setMessages] = useState([])
 
@@ -23,7 +24,8 @@ export default function App() {
       const privateRoom = prompt('Enter a room to join: ')
 
       setUserName(person)
-      setRoom(privateRoom)
+      setRoom('')
+      setCurrentRoom(privateRoom)
       socket.emit('send-user-connected', person, privateRoom)
     })
 
@@ -60,6 +62,8 @@ export default function App() {
     const temp = messages.slice()
     temp.push('Joined Room: ' + room)
     setMessages(temp)
+    setCurrentRoom(room)
+    setRoom('')
   }
 
   function handleClearMessages() {
@@ -69,35 +73,38 @@ export default function App() {
   function handleLeaveRoom() {
     socket.emit('leave-room', room)
     setRoom('')
+    setCurrentRoom('')
+    setMessages([])
   }
 
   return (
-    <div className="main-body">
-      <div className='chat-area'>
-        <div className='chats'>
-          <h3>{userName} connected.</h3>
+    <div className='chat-area'>
+      <div className='room-name'>{currentRoom != '' ? 'Current Room: ' + currentRoom : ''}</div>
+      <div className='chats'>
+        <p>{userName != '' ? userName + ' connected.' : ''} </p>
 
-          {
-            messages.map(m => {
-              return (
-                <p>{m}</p>
-              )
-            })
-          }
+        {
+          messages.map(m => {
+            return (
+              <p>{m}</p>
+            )
+          })
+        }
 
+      </div>
+      <div className="messaging">
+        <div className="enter-message">
+          <input type="text" value={message} id="message" name="message" onChange={(e) => {setMessage(e.target.value)}}/>
+          <button className='send-message' onClick={() => {handleMessageSend(); setMessage('')}}>Send</button>
         </div>
-        <div className="messaging">
-          <div className="enter-message">
-            <input type="text" value={message} id="message" name="message" onChange={(e) => {setMessage(e.target.value)}}/>
-            <button className='send-message' onClick={() => {handleMessageSend(); setMessage('')}}>Send</button>
-          </div>
-          <div className="enter-room">
-            <input type="text" value={room} id="room" name="room" onChange={(e) => {setRoom(e.target.value)}}/>
-            <button className='send-room-name' onClick={() => {handleJoinRoom()}}>Enter Room</button>
-          </div>
-          <div className="options">
+        <div className="enter-room">
+          <input type="text" value={room} id="room" name="room" onChange={(e) => {setRoom(e.target.value)}}/>
+          <button className='send-room-name' onClick={() => {handleJoinRoom()}}>Enter Room</button>
+        </div>
+        <div className="options">
+          <div>
             <button className="clear-messages" onClick={() => {handleClearMessages()}}>Clear messages</button>
-            <button className="leave-room" onClick={() => {handleLeaveRoom()}}>Leave room {room}</button>
+            <button className="leave-room" onClick={() => {handleLeaveRoom()}}>Leave room</button>
           </div>
         </div>
       </div>

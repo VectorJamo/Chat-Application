@@ -9,13 +9,21 @@ const io = new socket.Server(3000, {
 })
 
 io.on('connection', (socket) => {    
-    socket.on('send-message', (message, username) => {
-        socket.broadcast.emit('broadcast-message', message, username)
-        console.log('message broadcasted by user: ', socket.id)
+    socket.on('send-message', (message, username, room) => {
+        socket.to(room).emit('broadcast-message', message, username);
     })
-
-    socket.on('send-user-connected', (username) => {
+    socket.on('send-user-connected', (username, room) => {
+        console.log(`${username} connected and is in room ${room}`)
+        socket.join(room)
         socket.broadcast.emit('broadcast-user-connected', username)
+    })
+    socket.on('join-room', (room) => {
+        socket.join(room)
+        console.log('Joined the room: ', room)
+    })
+    socket.on('leave-room', (room) => {
+        socket.leave(room)
+        console.log('Left the room: ', room)
     })
 })
 

@@ -20,8 +20,11 @@ export default function App() {
       console.log(socket.id)
 
       const person = prompt('Enter your name: ')
+      const privateRoom = prompt('Enter a room to join: ')
+
       setUserName(person)
-      socket.emit('send-user-connected', person)
+      setRoom(privateRoom)
+      socket.emit('send-user-connected', person, privateRoom)
     })
 
     socket.on('broadcast-message', (message, user) => {
@@ -42,7 +45,7 @@ export default function App() {
 
 
   function handleMessageSend(){
-    socket.emit('send-message', message, userName)
+    socket.emit('send-message', message, userName, room)
     
     const temp = messages.slice()
     temp.push('You: ' + message)
@@ -51,6 +54,22 @@ export default function App() {
     console.log(temp)
   }
 
+  function handleJoinRoom(){
+    socket.emit('join-room', room)
+
+    const temp = messages.slice()
+    temp.push('Joined Room: ' + room)
+    setMessages(temp)
+  }
+
+  function handleClearMessages() {
+    setMessages([])
+  }
+
+  function handleLeaveRoom() {
+    socket.emit('leave-room', room)
+    setRoom('')
+  }
 
   return (
     <div className="main-body">
@@ -74,7 +93,11 @@ export default function App() {
           </div>
           <div className="enter-room">
             <input type="text" value={room} id="room" name="room" onChange={(e) => {setRoom(e.target.value)}}/>
-            <button className='send-room-name'>Enter Room</button>
+            <button className='send-room-name' onClick={() => {handleJoinRoom()}}>Enter Room</button>
+          </div>
+          <div className="options">
+            <button className="clear-messages" onClick={() => {handleClearMessages()}}>Clear messages</button>
+            <button className="leave-room" onClick={() => {handleLeaveRoom()}}>Leave room {room}</button>
           </div>
         </div>
       </div>
